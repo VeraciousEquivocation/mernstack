@@ -1,0 +1,33 @@
+.root {
+    max-width: 900px;
+    box-shadow: 0 1px 1px 0 rgb(0 0 0 / 10%);
+    margin: auto auto;
+    margin-top: 24px;
+    background-color: #fff;
+    padding: 16px;
+    
+}
+.shadow {
+    box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
+    &:hover {
+        box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%), 0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
+    }
+}
+.overrideBtn {
+    margin-left: 8px;
+}
+.red {
+    background-color: rgb(223, 93, 93);
+    color: white;
+    td {
+        color: white!important;
+    }
+    .overrideBtn {
+        border-color: white!important;
+        color: white!important;
+        &:hover {
+            background-color: white!important;
+            color: black!important;
+        }
+    }
+}
