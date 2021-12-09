@@ -18,7 +18,6 @@ This app is utlizing a free online mongodb, via MongoDB Atlas Database. You can 
 
 {% endnote %}
 
-
 expressjs routes are found in routes -> record.js
 
 A custom express app level middleware was added to catch errors with fetching from mongodb
