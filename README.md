@@ -12,11 +12,9 @@ nodemon server.js
 connection the mongodb is in db -> conn.js
 This app is utlizing a free online mongodb, via MongoDB Atlas Database. You can modify this to use another.
 
-{% note %}
 
-**Note:** For mongo methods refer to their [Documentation](https://docs.mongodb.com/manual/reference/method/)
 
-{% endnote %}
+|{% note %}**Note:**{% endnote %} For mongo methods refer to their [Documentation](https://docs.mongodb.com/manual/reference/method/)|
 
 
 expressjs routes are found in routes -> record.js
