@@ -14,7 +14,7 @@ This app is utlizing a free online mongodb, via MongoDB Atlas Database. You can 
 
 
 
-| {% note %}**Note:**{% endnote %} For mongo methods refer to their [Documentation](https://docs.mongodb.com/manual/reference/method/) |
+| **Note:** For mongo methods refer to their [Documentation](https://docs.mongodb.com/manual/reference/method/) |
 | --- |
 
 
