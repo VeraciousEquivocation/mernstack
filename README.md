@@ -53,8 +53,8 @@ When adding a new entry, code is in place to prevent duplicate entries. The pers
 If an entry is found, the user is alerted that a record already exists.
 
 Features that may be added:
-  - [] An "admin" switch to fetch all records including deleted, while only initially fetching records where deleted is false.
-  - [] Pagination - to work with mongodbs limit, count, and $gt features
-  - [] Search
-  - [] Filters
+  - [ ] An "admin" switch to fetch all records including deleted, while only initially fetching records where deleted is false.
+  - [ ] Pagination - to work with mongodbs limit, count, and $gt features
+  - [ ] Search
+  - [ ] Filters
   
