@@ -36,6 +36,7 @@ const Create = () => {
         axios
           .post("http://localhost:5000/record/add", newperson)
           .then((res) => {
+              console.log(res.data)
               if(typeof(res.data) === 'string') alert(res.data)
               else clearFields()
           })

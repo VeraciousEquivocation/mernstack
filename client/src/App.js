@@ -8,7 +8,7 @@ import RecordList from "./components/recordList";
 
 const App = () => {
   return (
-    <div>
+    <div style={{overflow:'hidden'}}>
       <Navbar />
       <Routes>
         <Route exact path="/" element={<RecordList />} />

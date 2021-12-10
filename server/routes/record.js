@@ -13,6 +13,8 @@ const dbo = require("../db/conn");
 const ObjectId = require("mongodb").ObjectId;
 
 // LIST OF FUNCTIONS TO CALL for reusability //
+
+// this method grabs all records
 const findAll = function (callback) {
   let db_connection = dbo.getDb("employees");
   if(typeof(db_connection) === 'undefined') throw(new Error('DB IS UNDEFINED'))
@@ -25,6 +27,49 @@ const findAll = function (callback) {
     callback(err,'')
   }
     
+}
+
+// A method to grab next/prev results based on a page size
+const grabPage = function (page_size,last_id,direction, callback) {
+  let db_connection = dbo.getDb("employees");
+  if(typeof(db_connection) === 'undefined') throw(new Error('DB IS UNDEFINED'))
+  
+  if(last_id === undefined) {
+    try {
+      db_connection
+        .collection("records")
+        .find({})
+        .limit(page_size)
+        .toArray(callback);
+    } catch(err) {
+      callback(err,'')
+    }
+  } else {
+    let ltORgt = '$gt';
+    let sortOrder = {'_id': 1};
+    if(direction==='prev') { 
+      ltORgt = '$lt'
+      sortOrder = {'_id': -1}
+    }
+
+    let query = {
+      '_id': {
+        [ltORgt]: last_id
+      }
+    }
+
+    try {
+      db_connection
+        .collection("records")
+        .find(query)
+        .sort(sortOrder)
+        .limit(page_size)
+        .toArray(callback);
+    } catch(err) {
+      callback(err,'')
+    }
+  }
+
 }
 
 const findByNameNum = function (myQuery,callback) {
@@ -127,10 +172,28 @@ const softDelete = function (req,callback) {
 
 // This section will help you get a list of all the records.
 recordRoutes.route("/record").get( function (req, res, next) {
-  findAll((err,result)=>{
+  let page_size = parseInt(req.query.page_size);
+
+  // need to ObjectId it for it to work
+  let last_id = req.query.last_id ? ObjectId(req.query.last_id) : undefined;
+  let direction = req.query.direction;
+
+  if(typeof(page_size) !== 'number') next(new Error('PAGE SIZE IS NOT A NUMBER'))
+
+  grabPage(page_size,last_id, direction,(err,result)=>{
     if(err) next(err)
-    else res.json(result)
+    else {
+      if(direction === 'prev') {
+        result = result.reverse()
+      }
+      res.json(result)
+    }
   })
+  
+  // findAll((err,result)=>{
+  //   if(err) next(err)
+  //   else res.json(result)
+  // })
 });
 
 // This section will help you get a single record by id
@@ -145,7 +208,7 @@ recordRoutes.route("/record/:id").get(function (req, res, next){
 });
 
 // This section will help you create a new record.
-recordRoutes.route("/record/add").post(function (req, response) {
+recordRoutes.route("/record/add").post(function (req, response, next) {
     let db_connect = dbo.getDb();
     let myobj = {
       person_name: req.body.person_name,
@@ -154,13 +217,13 @@ recordRoutes.route("/record/add").post(function (req, response) {
       person_phone: req.body.person_phone,
     };
     addNew(myobj, function (err, res) {
-      if (err) throw err;
+      if (err) next(err);
       response.json(res);
     })
   });
   
 // This section will help you update a record by id.
-recordRoutes.route("/update/:id").post(function (req, response) {
+recordRoutes.route("/update/:id").post(function (req, response, next) {
     let db_connect = dbo.getDb();
     let myquery = { _id: ObjectId( req.params.id )};
     let newvalues = {
@@ -172,12 +235,13 @@ recordRoutes.route("/update/:id").post(function (req, response) {
       },
     };
     updateByID(myquery, newvalues, function (err, res) {
-      if (err) throw err;
+      if (err) next(err);
       console.log("1 document updated");
       response.json(res);
     })
   });
-recordRoutes.route("/updatemultiple").post(function (req, response) {
+
+recordRoutes.route("/updatemultiple").post(function (req, response, next) {
   let db_connect = dbo.getDb();
   let idList = req.body.ids.map(i => ObjectId(i))
 
@@ -191,25 +255,25 @@ recordRoutes.route("/updatemultiple").post(function (req, response) {
   };
 
   updateMultipleByID(myquery, newvalues, function (err, res) {
-    if (err) throw err;
+    if (err)  next(err);
     console.log("documents updated");
     response.json(res);
   })
 });
   
 // This section will help you delete a record
-recordRoutes.route("/OLD/:id").delete((req, response) => {
+recordRoutes.route("/OLD/:id").delete((req, response, next) => {
     let db_connect = dbo.getDb();
     let myquery = { _id: ObjectId( req.params.id )};
     db_connect.collection("records").deleteOne(myquery, function (err, obj) {
-      if (err) throw err;
+      if (err) next(err);
       console.log("1 document deleted");
       response.status(obj);
     });
   });
 
 // This section will soft-delete a record
-recordRoutes.route("/:id").delete((req, res) => {
+recordRoutes.route("/:id").delete((req, res,next) => {
     let db_connect = dbo.getDb();
     let myquery = { _id: ObjectId( req.params.id )};
     softDelete(req,(err,result)=>{

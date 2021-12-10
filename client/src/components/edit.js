@@ -61,6 +61,7 @@ const Edit = (props) => {
 				updatedPerson
 			)
 			.then((res) => {
+				console.log(res.data)
 				navigate('/')
 			})
 			.catch(function (error) {

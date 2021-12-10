@@ -4,7 +4,8 @@ import scss from './recordList.module.scss'
 import Button from 'react-bootstrap/Button'
 import ToggleButton from 'react-bootstrap/ToggleButton'
 import { Link } from "react-router-dom";
-import useForceUpdate from "../hooks/forceupdate";
+import Pagination from 'react-bootstrap/Pagination'
+import PageItem from 'react-bootstrap/PageItem'
 
 // /updatemultiple
 // Record Row
@@ -57,15 +58,51 @@ const Record = ({isSelected, selectRow, record, deleteRecord}) => {
 const RecordList = () => {
 	const [records, setRecords] = useState([])
 	const [selectedRows, setSelectedRows] = useState([])
+	const [currentPage, setCurrentPage] = useState(1)
 
 	useEffect(()=>{
+    let options = {
+      page_size:5,
+    }
     axios
-      .get("http://localhost:5000/record/")
+      .get("http://localhost:5000/record/",{params:options})
       .then((response) => {
         setRecords(response.data)
       })
 	},[])
 
+  const handlePrevClick = () => {
+    if(currentPage === 1) return;
+    getNewPage('prev')
+  }
+  const handleNextClick = () => {
+    getNewPage('next')
+  }
+  //this method fetches previous or next page
+  const getNewPage = (direction) => {
+    // if(currentPage === 1) return;
+    let last_id;
+    if(direction === 'next') last_id = records[records.length - 1]._id 
+    else last_id = records[0]._id
+    
+    let options = {
+      page_size:5,
+      last_id,
+      direction
+    }
+    axios
+      .get("http://localhost:5000/record/",{params:options})
+      .then((response) => {
+        if(response.data.length <= 0) return;
+        setRecords(response.data)
+        let newNum = currentPage;
+        if(direction === 'next') newNum++
+        else newNum--
+        setCurrentPage(newNum)
+      })
+  }
+
+  // This method selects rows
 	const selectRow = (recordId) => {
     if(selectedRows.includes(recordId)) {
       setSelectedRows(oldVals => {
@@ -77,7 +114,6 @@ const RecordList = () => {
       setSelectedRows(updatedArr)
     }
   }
-
   // This method will delete a record
   const deleteRecord = (id) => {
     axios.delete("http://localhost:5000/" + id).then((response) => {
@@ -139,25 +175,49 @@ const RecordList = () => {
 	return (
 		<div className={scss.root}>
 			<h3>Record List</h3>
-			<table className="table table-striped" style={{ marginTop: 20 }}>
-				<thead>
-					<tr>
-            <th></th>
-						<th>Name</th>
-						<th>Position</th>
-						<th>Level</th>
-						<th>Phone</th>
-						<th>Action</th>
-					</tr>
-				</thead>
-				<tbody>{buildRecordList()}</tbody>
-			</table>
-      { selectedRows.length > 0 &&
-        <div>
-          <Button variant="primary" onClick={deleteMultiple}> Delete Selected </Button>
-          <Button variant="primary" onClick={undeleteMultiple}> unDelete Selected </Button>
-        </div>
-      }
+      <div className={scss.actionButtonsTop}>
+        <span>{`Selected Rows: ${selectedRows.length}`}</span>
+        { selectedRows.length > 0 &&
+          <>
+            <Button variant="primary" onClick={deleteMultiple} size={'sm'}> Delete Selected </Button>
+            <Button variant="primary" onClick={undeleteMultiple} size={'sm'}> unDelete Selected </Button>
+          </>
+        }
+      </div>
+			<div className={scss.tableContainer}>
+        <table className={`${scss.empTable} table table-striped`} style={{ marginBottom: 48, }}>
+			  	<thead>
+			  		<tr>
+              <th></th>
+			  			<th>Name</th>
+			  			<th>Position</th>
+			  			<th>Level</th>
+			  			<th>Phone</th>
+			  			<th>Action</th>
+			  		</tr>
+			  	</thead>
+			  	<tbody>{buildRecordList()}</tbody>
+			  </table>
+      </div>
+      <div className={scss.pagination}>
+        <Pagination>
+          {/* <Pagination.First /> */}
+          <Pagination.Prev onClick={handlePrevClick}/>
+          {/* <Pagination.Item>{1}</Pagination.Item>
+          <Pagination.Ellipsis />
+
+          <Pagination.Item>{10}</Pagination.Item>
+          <Pagination.Item>{11}</Pagination.Item> */}
+          <Pagination.Item active>{currentPage}</Pagination.Item>
+          {/* <Pagination.Item>{13}</Pagination.Item>
+          <Pagination.Item disabled>{14}</Pagination.Item>
+
+          <Pagination.Ellipsis />
+          <Pagination.Item>{20}</Pagination.Item> */}
+          <Pagination.Next onClick={handleNextClick}/>
+          {/* <Pagination.Last /> */}
+        </Pagination>
+      </div>
 		</div>
 	)
 }
