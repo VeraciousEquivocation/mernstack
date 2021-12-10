@@ -84,6 +84,7 @@ if(direction === 'prev') {
 
 ### Features that may be added:
   
+  | --- |
   | - [ ] An "admin" switch to fetch all records including deleted, while only initially fetching records where deleted is false. |
   | - [x] <s>Pagination - to work with mongodbs limit, count, and $gt features</s> |
   | - [ ] Search |
